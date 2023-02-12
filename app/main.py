@@ -1,49 +1,222 @@
 from fastapi import FastAPI, Response
 from typing import Optional 
 import redis
+from redis_functions import RedisInterface
+import ticket
+import uuid
+import base64
+import json
 
-
-
-app = FastAPI()
-
-students = [
-    {
-        "name": "Alice",
-        "id": "1004803",
+"""
+Sample request body:
+{ 
+    "ticket_id":"f82b4dkc",
+    "name": "Fauzaan",
+    "from_city" : "Singapore",
+    "to_city" : "Berkley",
+    "gate" : 48,
+    "price" : 876.12,
+    "date": "5th June 2024"
+}
+Sample request body to insert many:
+[
+    { 
+        "ticket_id":"f82b4dkc",
+        "name": "Ted",
+        "from_city" : "Prague",
+        "to_city" : "Washington",
+        "gate" : 12,
+        "price" : 1000,
+        "date": "5th June 2024"
     },
-    {
-        "name": "Bob",
-        "id": "1004529"
+    { 
+        "ticket_id":"f82b4dkc",
+        "name": "Lily",
+        "from_city" : "England",
+        "to_city" : "Washington",
+        "gate" : 48,
+        "price" : 1020,
+        "date": "10th June 2024"
     },
-    {
-        "name": "Charlie",
-        "id": "1004910",
-        "gpa": 5.0
-    },
-    {
-        "name": "Someone random",
-        "gpa": 5.0
+    { 
+        "ticket_id":"f82b4dkc",
+        "name": "Boldimir",
+        "from_city" : "Iceland",
+        "to_city" : "Helsinki",
+        "gate" : 11,
+        "price" : 80,
+        "date": "9th June 2024"
     }
 ]
 
+"""
+
+app = FastAPI()
+redisThings = RedisInterface()
+
+"""
+Description:
+    Root url. To indicate that all is well.
+Parameters:
+
+Returns:
+
+"""
 @app.get("/")
 def read_root():
-
     return "Host is up and running"
 
 
-@app.get("/students/{student_id}")
-def get_student(response: Response, student_id: Optional[str] = None):
-    global students
-    if students:
-        response.status_code = 200
-        if not student_id:
-            return students
-        if student_id == "all":
-            return students
-        for student in students:
-            if "id" in student and student["id"] == student_id:
-                return student
-        return "No such student id"
-    else:
-        return "Students are empty"
+"""
+Description:
+    This method is created seperately because, we can use the pipeline function to batch insert
+    multiple values, instead of calling the redisThings.insert function multiple times. 
+Parameters:
+
+Returns:
+
+"""
+@app.post("/create_ticket")
+async def create_ticket(ticket: ticket.Ticket, response: Response):
+    # print("ticket", ticket)
+    if not ticket:
+        response.status_code = 404
+        return "Entity was not found"
+    
+    """
+    Code to send the data to redis image using redis_functions import
+    """
+    ticket.ticket_id = str(uuid.uuid4())
+    redisThings.insert(ticket)
+    return ticket
+
+
+
+
+"""
+Description:
+    This method is created seperately because, we can use the pipeline function to batch insert
+    multiple values, instead of calling the redisThings.insert function multiple times. 
+Parameters:
+
+Returns:
+
+"""
+@app.post("/create_many_tickets")
+async def create_many_tickets(ticketList: list, response: Response):
+    fields = {
+    "ticket_id",
+    "name",
+    "from_city",
+    "to_city",
+    "gate",
+    "price",
+    "date"
+    }
+    """
+        Finding union is much faster below, as otherwise, we have to perform nested loops with
+        O(n^2) complexity. 
+    """
+    for ticket in ticketList:
+        union = fields.union(ticket.keys())
+        if len(union) > 7:
+            response.status_code = 404
+            return "Incorrect number of fields or field names!"
+        ticket['ticket_id'] = str(uuid.uuid4())
+    redisThings.insert_many(ticketList)
+    return ticketList
+
+
+
+
+
+"""
+Description:
+    This method is created seperately because, we can use the pipeline function to batch insert
+    multiple values, instead of calling the redisThings.insert function multiple times. 
+Parameters:
+
+Returns:
+
+"""
+@app.delete("/delete_ticket_by_id/{ticket_id}")
+def delete_ticket_by_id(ticket_id: str):
+    """
+    Code to delete a ticket by ticket id from redis db
+    """
+    redisThings.delete_by_key(ticket_id)
+    return "Key was deleted successfully"
+
+
+
+
+
+"""
+Description:
+    This method is created seperately because, we can use the pipeline function to batch insert
+    multiple values, instead of calling the redisThings.insert function multiple times. 
+Parameters:
+
+Returns:
+
+"""
+@app.delete("/delete_all")
+def delete_all_tickets():
+    """
+    Code to delete a ticket by ticket id from redis db
+    """
+    redisThings.delete_all()
+    return "Keys were all deleted successfully"
+
+
+
+
+
+
+"""
+Description:
+    This method is created seperately because, we can use the pipeline function to batch insert
+    multiple values, instead of calling the redisThings.insert function multiple times. 
+Parameters:
+
+Returns:
+
+"""
+@app.get("/get_all_tickets")
+def get_all_tickets(
+    sortBy: Optional[str] = None, 
+    limit: Optional[int] = None
+    ):
+    if sortBy:
+        """
+        Code to sort by the a specific column
+        """
+        pass
+    if limit:
+        """
+        Code to limit the number of results to return
+        """
+        pass
+    """
+    Code to retrieve all the tickets from redis db
+    """
+    data = redisThings.get_all()
+    return data
+    
+
+
+
+
+
+"""
+Description:
+    This method assumes you know the ticket id somehow 
+Parameters:
+
+Returns:
+
+"""
+@app.get("/get_ticket_by_id/{ticket_id}")
+def get_ticket_by_id(ticket_id:str):
+    data = redisThings.get_by_key(ticket_id)
+    return data
