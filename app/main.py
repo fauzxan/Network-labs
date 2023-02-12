@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Response
 from typing import Optional 
+import redis
+
+
 
 app = FastAPI()
 
@@ -25,19 +28,22 @@ students = [
 
 @app.get("/")
 def read_root():
-    return "Hello World"
 
+    return "Host is up and running"
 
 
 @app.get("/students/{student_id}")
-def find_student(student_id: Optional[str], response: Response):
+def get_student(response: Response, student_id: Optional[str] = None):
     global students
-    for student in students:
-        if "id" in student:
-            if student["id"] == student_id:
-                response.status_code = 200
+    if students:
+        response.status_code = 200
+        if not student_id:
+            return students
+        if student_id == "all":
+            return students
+        for student in students:
+            if "id" in student and student["id"] == student_id:
                 return student
-        else:
-            "One of them didn't have id"
-    response.status_code = 404
-    return "Not found lor"
+        return "No such student id"
+    else:
+        return "Students are empty"
