@@ -1,4 +1,3 @@
 fastapi == 0.91.0
 redis
-pymongo
 pydantic

@@ -84,5 +84,3 @@ class RedisInterface:
             return True
         else:
             return False
-    
-    

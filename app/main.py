@@ -4,8 +4,6 @@ import redis
 from redis_functions import RedisInterface
 import ticket
 import uuid
-import base64
-import json
 
 """
 Sample request body:
@@ -115,7 +113,7 @@ async def create_many_tickets(ticketList: list, response: Response):
     }
     """
         Finding union is much faster below, as otherwise, we have to perform nested loops with
-        O(n^2) complexity. 
+        O(keys*number_of_entries) complexity. 
     """
     for ticket in ticketList:
         union = fields.union(ticket.keys())
@@ -187,20 +185,15 @@ def get_all_tickets(
     sortBy: Optional[str] = None, 
     limit: Optional[int] = None
     ):
-    if sortBy:
-        """
-        Code to sort by the a specific column
-        """
-        pass
-    if limit:
-        """
-        Code to limit the number of results to return
-        """
-        pass
-    """
-    Code to retrieve all the tickets from redis db
-    """
-    data = redisThings.get_all()
+    try:
+        data = redisThings.get_all()
+        if sortBy:
+            data = sorted(data, key=lambda d: d[sortBy])
+        if limit:
+            if limit<len(data) and limit > -1:
+                data =  data[:limit]
+    except: 
+        print("There was an error")
     return data
     
 
