@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Optional
 
 class Ticket(BaseModel):
     ticket_id: str
@@ -8,3 +8,4 @@ class Ticket(BaseModel):
     gate: int
     price: float
     date: str
+    file: bytes | None = None

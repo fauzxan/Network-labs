@@ -69,6 +69,11 @@ class RedisInterface:
         else:
             print("\n\n\nUnable to insert the values, as there was a redis error!")
 
+    
+    def upload_file(self, file: bytes):
+        pass
+
+
     def delete_all(self):
         if self.r:
             keys = self.r.keys('*')
