@@ -121,6 +121,7 @@ async def create_many_tickets(ticketList: list, response: Response):
     """
     for ticket in ticketList:
         union = fields.union(ticket.keys())
+        # this is a check to see if the fields are consistent
         if len(union) > 7:
             response.status_code = 404
             return "Incorrect number of fields or field names!"
@@ -142,15 +143,16 @@ Returns:
 """
 @app.post("/upload_file/{ticket_id}")
 def upload_file(ticket_id: str, fileName: bytes = File()):
-    # Call function from redisThings
-    # get data from get_all(), then find the one with key = ticket_id
-    # Append an extra column to it with bytes data type
-    pass
+    data = redisThings.get_by_key(ticket_id)
+    if data:
+        # file_to_upload = fileName.read()
+        data['file'] =  fileName
+        redisThings.insert(data)
+        return data
 
 
 
-
-
+# there is change
 
 
 """

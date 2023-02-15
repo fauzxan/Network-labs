@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Optional
+from pydantic import BaseModel
+from typing import Optional
 
 class Ticket(BaseModel):
     ticket_id: str
@@ -8,4 +9,4 @@ class Ticket(BaseModel):
     gate: int
     price: float
     date: str
-    file: bytes | None = None
+    file: Optional[bytes] = None 
