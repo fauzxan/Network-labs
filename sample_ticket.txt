@@ -1,0 +1,11 @@
+BOARDING PASS
+
+Flight #: BA456
+Departing From: Paris (CDG)
+Arriving At: Madrid (MAD)
+Departure Date: 2023-03-01
+Departure Time: 15:30
+Passenger Name: Somename that is not handled by the api
+Seat #: 12C
+Boarding Time: 14:45
+Gate: 12A

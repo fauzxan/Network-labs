@@ -1,0 +1,44 @@
+POST /create_many_tickets HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+Content-Length: 874
+
+
+[
+    { 
+    "ticket_id":"f82b4dkc",
+    "name": "Fauzaan",
+    "from_city" : "Singapore",
+    "to_city" : "Berkley",
+    "gate" : 48,
+    "price" : 876.12,
+    "date": "5th June 2024"
+    },
+    { 
+        "ticket_id":"f82b4dkc",
+        "name": "Ted",
+        "from_city" : "Prague",
+        "to_city" : "Washington",
+        "gate" : 12,
+        "price" : 1000,
+        "date": "5th June 2024"
+    },
+    { 
+        "ticket_id":"f82b4dkc",
+        "name": "Lily",
+        "from_city" : "England",
+        "to_city" : "Washington",
+        "gate" : 48,
+        "price" : 1020,
+        "date": "10th June 2024"
+    },
+    { 
+        "ticket_id":"f82b4dkc",
+        "name": "Boldimir",
+        "from_city" : "Iceland",
+        "to_city" : "Helsinki",
+        "gate" : 11,
+        "price" : 80,
+        "date": "9th June 2024"
+    }
+]

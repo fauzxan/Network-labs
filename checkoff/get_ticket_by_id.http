@@ -1,0 +1,3 @@
+GET /get_ticket_by_id/{ticket_id} HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
