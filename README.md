@@ -50,7 +50,7 @@ You can specify the following query parameters for this method: sortBy, limit, a
 
 2. POST request
 - that creates a new resource with the given attributes in the body
-- show that the resource has indeed been created through another HTTP request
+- show that the resource has indeed been created through another HTTP request. You can check that a ticket has been created either with a get_ticket_by_id or a get_all_tickets request
 - has validation and returns an appropriate HTTP response code along with a '{error} bRo' message if the input data is invalid (e.g. missing name). 
 <br/>
 
