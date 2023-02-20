@@ -1,6 +1,7 @@
 import redis
 import ticket
 import json
+from typing import Optional
 
 """
 Function list:
@@ -80,10 +81,17 @@ class RedisInterface:
             return "\n\n\nUnable to get the values, as there was a redis error!"
 
 
-    def delete_all(self):
+    def delete_all(self, originCity: Optional[str] = None):
         if self.r:
             keys = self.r.keys('*')
-            self.r.delete(*keys)
+            if originCity:
+                for key in keys:
+                    data = json.loads(self.r.get(key))
+                    print(data)
+                    if data['from_city'] == originCity:
+                        self.r.delete(key)
+            else:
+                self.r.delete(*keys)
             return True
         else:
             return False

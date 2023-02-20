@@ -109,11 +109,11 @@ Returns:
     string message if successful
     otherwise HTTPException
 """
-@app.put("/upload_file/{ticket_id}")
+@app.post("/upload_file/{ticket_id}")
 async def upload_file(ticket_id: str, fileName: bytes = File()):
     keys = [i.decode('ascii') for i in redisThings.r.keys()]
     if ticket_id not in keys:
-        raise HTTPException(status_code=400, detail="Key does not exist")
+        raise HTTPException(status_code=400, detail="Key does not exist bRo")
     ticket = redisThings.get_by_key(ticket_id)
 
     if ticket:
@@ -131,7 +131,7 @@ async def upload_file(ticket_id: str, fileName: bytes = File()):
         if redisThings.get_by_key(ticket["ticket_id"]): 
             return "created successfully"
         else:
-            raise HTTPException(status_code=400, detail="Upload file error")
+            raise HTTPException(status_code=400, detail="Upload file error bRo")
     else:
         raise HTTPException(status_code=400, detail="ID not found bRo")
 
@@ -165,18 +165,21 @@ Description:
     This method is created seperately because, we can use the pipeline function to batch insert
     multiple values, instead of calling the redisThings.insert function multiple times. 
 Parameters:
-    None
+    originCity as an Optional query parameter
 Returns:
     string message if successful
     otherwise HTTPException
 """
 @app.delete("/delete_all")
-def delete_all_tickets():
+def delete_all_tickets(
+    originCity: Optional[str] = None
+):
     keys = [i.decode('ascii') for i in redisThings.r.keys()]
     if not keys:
         raise HTTPException(status_code=400, detail="Database is empty bRo")
-    redisThings.delete_all()
-    return "Successfully deleted everything"
+    
+    redisThings.delete_all(originCity)
+    return "Successfully deleted as specified"
 
 
 
@@ -216,7 +219,7 @@ def get_all_tickets(
         data = data[0 if offset<0 else offset :]
    
     if not data:
-        raise HTTPException(status_code=400, detail="No data for the given parameters")
+        raise HTTPException(status_code=400, detail="No data for the given parameters bRo")
     return data 
     
 
