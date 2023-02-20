@@ -27,11 +27,13 @@ def read_root(request: Request):
 
 """
 Description:
-    Helps create ticket with along with ticket id
+    Helps create ticket and sets the ticket_id field as a randomly generated hash.
+    Checks if there are null values in any of the mandatory fields.
 Parameters:
-
+    Ticket type object, from HTTP request
 Returns:
-
+    ticket that you uploaded, if successful
+    HTTPException otherwise
 """
 @app.post("/create_ticket")
 async def create_ticket(ticket: ticket.Ticket):
@@ -43,7 +45,7 @@ async def create_ticket(ticket: ticket.Ticket):
     if not redisThings.get_by_key(ticket.ticket_id):
         return "Failed to create for some reasons"
 
-    return ticket
+    return ticket, "Successfully created!"
 
 
 
@@ -54,13 +56,13 @@ Description:
     This method is created seperately because, we can use the pipeline function to batch insert
     multiple values, instead of calling the redisThings.insert function multiple times. 
 Parameters:
-
-
+    Ticket JSON string passed in as HTTP request
 Returns:
-    Custom HTTP response if number of fields are incorrect
+    ticketList that you uploaded if successful
+    otherwise HTTPException
 """
 @app.post("/create_many_tickets")
-async def create_many_tickets(ticketList: list, response: Response):
+async def create_many_tickets(ticketList: list):
 
     fields = {
         "ticket_id",
@@ -83,7 +85,7 @@ async def create_many_tickets(ticketList: list, response: Response):
             raise HTTPException(status_code=404, detail="Incorrect number of fields bRo")
         ticket['ticket_id'] = str(uuid.uuid4())
     redisThings.insert_many(ticketList)
-    return ticketList
+    return ticketList, "Successfully created the above!"
 
 
 
@@ -97,18 +99,19 @@ Description:
     before uploading
 
     upload file receives a dict object and directly uploads it by appending the file object 
-    to it as a string
+    decoded as an ascii string
 
 Parameters:
-    ticket_id, from the path
+    ticket_id, as a string
     fileName, which is a bytes object from the body of the request
 
 Returns:
-
+    string message if successful
+    otherwise HTTPException
 """
 @app.put("/upload_file/{ticket_id}")
 async def upload_file(ticket_id: str, fileName: bytes = File()):
-    keys = redisThings.r.keys()
+    keys = [i.decode('ascii') for i in redisThings.r.keys()]
     if ticket_id not in keys:
         raise HTTPException(status_code=400, detail="Key does not exist")
     ticket = redisThings.get_by_key(ticket_id)
@@ -130,7 +133,7 @@ async def upload_file(ticket_id: str, fileName: bytes = File()):
         else:
             raise HTTPException(status_code=400, detail="Upload file error")
     else:
-        raise HTTPException(status_code=400, detail="ID not found")
+        raise HTTPException(status_code=400, detail="ID not found bRo")
 
 
 
@@ -138,15 +141,18 @@ async def upload_file(ticket_id: str, fileName: bytes = File()):
 
 """
 Description:
-    This method is created seperately because, we can use the pipeline function to batch insert
-    multiple values, instead of calling the redisThings.insert function multiple times. 
+    Helps delete data by key
 Parameters:
-
+    ticket_id, as a string
 Returns:
-
+    string message if successful
+    otherwise HTTPException 
 """
 @app.delete("/delete_ticket_by_id/{ticket_id}")
 def delete_ticket_by_id(ticket_id: str):
+    keys = [i.decode('ascii') for i in redisThings.r.keys()]
+    if ticket_id not in keys:
+        raise HTTPException(status_code=400, detail="Key does not exist bRo")
     redisThings.delete_by_key(ticket_id)
     return "Key was deleted successfully"
 
@@ -159,16 +165,18 @@ Description:
     This method is created seperately because, we can use the pipeline function to batch insert
     multiple values, instead of calling the redisThings.insert function multiple times. 
 Parameters:
-
+    None
 Returns:
-
+    string message if successful
+    otherwise HTTPException
 """
 @app.delete("/delete_all")
 def delete_all_tickets():
+    keys = [i.decode('ascii') for i in redisThings.r.keys()]
+    if not keys:
+        raise HTTPException(status_code=400, detail="Database is empty bRo")
     redisThings.delete_all()
-    if redisThings.get_all():
-        return "Keys were not deleted successfully"
-    return "Keys were all deleted successfully"
+    return "Successfully deleted everything"
 
 
 
@@ -177,16 +185,17 @@ def delete_all_tickets():
 
 """
 Description:
-    This method helps retrieve all the tickets in the  redis database.
+    This method helps retrieve all the tickets in the redis database. 
+    Also takes in query parameters. If both offset and limit are applied, then the order of applicaiton
+    is offset-->limit
 Parameters:
-
+    Only query parameters specified in the url. {sortBy, limit, offset}
 Returns:
-
+    returns data if its not empty
+    otherwise HTTP exception
 """
 @app.get("/get_all_tickets")
 def get_all_tickets(
-    request: Request,
-    response: Response,
     sortBy: Optional[str] = None, 
     limit: Optional[int] = None,
     offset: Optional[int] = None
@@ -201,13 +210,14 @@ def get_all_tickets(
             data = data[0 if (offset<0 or offset>len(data)) else offset :]
         data = data[: len(data) if (limit > len(data) or limit < 0) else limit]
 
-        return data if data else "data is empty"
+        return data
 
     if offset:
         data = data[0 if offset<0 else offset :]
    
-        
-    return data if data else "data is empty"
+    if not data:
+        raise HTTPException(status_code=400, detail="No data for the given parameters")
+    return data 
     
 
 
@@ -218,10 +228,10 @@ def get_all_tickets(
 Description:
     This method assumes you know the ticket id, and retreives the ticket based on the id 
 Parameters:
-    From
-
+    ticket_id as string
 Returns:
-
+    returns data if its not empty
+    otherwise HTTP exception
 """
 @app.get("/get_ticket_by_id/{ticket_id}")
 def get_ticket_by_id(ticket_id: Optional[str] = None):
@@ -232,7 +242,7 @@ def get_ticket_by_id(ticket_id: Optional[str] = None):
     if data:
         return data
     else:
-        raise HTTPException(status_code=200, detail="Data is empty bRo")
+        raise HTTPException(status_code=200, detail="Check your id bRo")
 
 
 

@@ -6,7 +6,6 @@ Content-Length: 874
 
 [
     { 
-    "ticket_id":"f82b4dkc",
     "name": "Fauzaan",
     "from_city" : "Singapore",
     "to_city" : "Berkley",
@@ -15,7 +14,6 @@ Content-Length: 874
     "date": "5th June 2024"
     },
     { 
-        "ticket_id":"f82b4dkc",
         "name": "Ted",
         "from_city" : "Prague",
         "to_city" : "Washington",
@@ -24,7 +22,6 @@ Content-Length: 874
         "date": "5th June 2024"
     },
     { 
-        "ticket_id":"f82b4dkc",
         "name": "Lily",
         "from_city" : "England",
         "to_city" : "Washington",
@@ -33,7 +30,6 @@ Content-Length: 874
         "date": "10th June 2024"
     },
     { 
-        "ticket_id":"f82b4dkc",
         "name": "Boldimir",
         "from_city" : "Iceland",
         "to_city" : "Helsinki",
