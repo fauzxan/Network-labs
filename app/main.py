@@ -36,7 +36,7 @@ Returns:
     HTTPException otherwise
 """
 @app.post("/create_ticket")
-async def create_ticket(ticket: ticket.Ticket):
+def create_ticket(ticket: ticket.Ticket):
     if not ticket.date or not ticket.name or not ticket.from_city or not ticket.price or not ticket.to_city or not ticket.gate:
         raise HTTPException(status_code=400, detail="Bro something is wrong (hint: there's null values somewhere in your request). Fix it") 
     ticket.ticket_id = str(uuid.uuid4())
@@ -62,7 +62,7 @@ Returns:
     otherwise HTTPException
 """
 @app.post("/create_many_tickets")
-async def create_many_tickets(ticketList: list):
+def create_many_tickets(ticketList: list):
 
     fields = {
         "ticket_id",
@@ -110,7 +110,7 @@ Returns:
     otherwise HTTPException
 """
 @app.post("/upload_file/{ticket_id}")
-async def upload_file(ticket_id: str, fileName: bytes = File()):
+def upload_file(ticket_id: str, fileName: bytes = File()):
     keys = [i.decode('ascii') for i in redisThings.r.keys()]
     if ticket_id not in keys:
         raise HTTPException(status_code=400, detail="Key does not exist bRo")
