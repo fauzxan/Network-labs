@@ -38,7 +38,7 @@ You can specify the following query parameters for this method: sortBy, limit, a
 #### 
 > For all the methods, where query parameters or path parameters are present, you need to modify the request in the test file. You also need to modify the request for upload_file to your custom directory.
 
-#### Features implemented
+#### Features implemented (checkoff requirements)
 
 1. GET request
 - with no query parameters
@@ -47,15 +47,20 @@ You can specify the following query parameters for this method: sortBy, limit, a
 - with a offset query parameter, to "skip" ahead by a number of items
 - with any combination of the above query parameters
 <br/>
+
 2. POST request
 - that creates a new resource with the given attributes in the body
 - show that the resource has indeed been created through another HTTP request
 - has validation and returns an appropriate HTTP response code along with a '{error} bRo' message if the input data is invalid (e.g. missing name). 
 <br/>
-3. either a DELETE or PUT request...
+
+3. DELETE request
 - that deletes or updates a single resource respectively
 - show that the resource has indeed been modified through another HTTP request = has validation and returns an appropiate HTTP response code if the input data is invalid (e.g. trying to delete a nonexistent user). This also throws a '{error} bRo' message.
-- Identify which routes in your application are idempotent, and provide proof to support your answer.<br/> Only the put path is indempotent. Sending the same file to the same user will always result in the same result.
-4. Challenges implemented from checkoff:
+<br/>
+
+4. Indempotent routes in my application: only the post upload_file path is indempotent as sending the same file to the same user will always result in the same result.<br/>
+
+5. Challenges implemented from checkoff:
 - File upload in a POST request, using multipart/form-data
 - A special route that can performs batch delete based on a query parameter- originCity. This is done to resemble a scenario where all flights from a specific city are cancelled. 
