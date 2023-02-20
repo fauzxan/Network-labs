@@ -64,3 +64,37 @@ You can specify the following query parameters for this method: sortBy, limit, a
 5. Challenges implemented from checkoff:
 - File upload in a POST request, using multipart/form-data
 - A special route that can performs batch delete based on a query parameter- originCity. This is done to resemble a scenario where all flights from a specific city are cancelled. 
+
+<br/>
+
+#### Optimizations:
+```python3
+@app.post("/create_many_tickets")
+def create_many_tickets(ticketList: list):
+
+    fields = {
+        "ticket_id",
+        "name",
+        "from_city",
+        "to_city",
+        "gate",
+        "price",
+        "date",
+        "file"
+    }
+    """
+        Finding union is much faster below, as otherwise, we have to perform nested loops with
+        O(keys*number_of_entries) complexity. 
+    """
+    for ticket in ticketList:
+        union = fields.union(ticket.keys())
+        # this is a check to see if the fields are consistent
+        if len(union) > 8:
+            raise HTTPException(status_code=404, detail="Incorrect number of fields bRo")
+        ticket['ticket_id'] = str(uuid.uuid4())
+    redisThings.insert_many(ticketList)
+    return ticketList, "Successfully created the above!"
+
+
+```
+The above code reduces time complexity of checking for equality between two lists from O(n^2) to O(n). 
