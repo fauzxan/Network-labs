@@ -27,7 +27,7 @@ You can specify the following query parameters for this method: sortBy, limit, a
 2. "create_many_tickets": Takes in JSON string in the HTTP request and perfoms batch insert with pipelining.
 <br/>
 
-#### DELETE method
+#### DELETE methods
 1. "/delete_all": Performs pattern matching and deletes all the keys in the directory
 2. "delete_ticket_by_id": Deletes ticket based on the id passed into the url. This method also assumes you know the ticket_id to be deleted (This can be retrieved during creation, or via /get_all_tickets?sortBy=name).
 <br/>
