@@ -16,7 +16,7 @@ docker-compose-up
 > The expected response for each code has been given in the code. In main.py, the Description, input and output of each function is documented for your reference.
 
 #### GET methods
-1. "/" default root directory: Just an indicator of if the host is up and running as expected.
+1. "/" default root directory<br/> Just an indicator of if the host is up and running as expected.
 2. "/get_all_tickets"
 You can specify the following query parameters for this method: sortBy, limit, and offset
 3. "/get_ticket_by_id/{ticket_id}": This method assumes you know the ticket_id of the individual. (This can be retrieved during creation, or via /get_all_tickets?sortBy=name) 
